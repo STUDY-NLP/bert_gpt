@@ -48,7 +48,7 @@ Our dataset contains potentially offensive (toxic) comments and comes from the [
 
 """Let's load and look at the data:"""
 
-df = pd.read_csv("./data/toxic_comments.csv")
+df = pd.read_csv("/scratch/x2223a07/bert_gpt/data/toxic_comments.csv")
 df.head()
 
 """We have text (comment) and six different toxic labels. Note that we have clean content, too. 
