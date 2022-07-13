@@ -28,7 +28,7 @@ pl.seed_everything(RANDOM_SEED)
 # from googledrive
 # !gdown --id 1VuQ-U7TtggShMeuRSA_hzC8qGDl2LRkr
 
-df = pd.read_csv("data/toxic_comments.csv")
+df = pd.read_csv("/scratch/x2223a07/data/toxic_comments.csv")
 df.head()
 
 train_df, val_df = train_test_split(df, test_size=0.05)
@@ -106,22 +106,22 @@ class ToxicCommentsDataset(Dataset):
         comment_text = data_row.comment_text
         labels = data_row[LABEL_COLUMNS]
         encoding = self.tokenizer.encode_plus(
-        comment_text,
-        add_special_tokens=True,
-        max_length=self.max_token_len,
-        return_token_type_ids=False,
-        padding="max_length",
-        truncation=True,
-        return_attention_mask=True,
-        return_tensors='pt',
+          comment_text,
+          add_special_tokens=True,
+          max_length=self.max_token_len,
+          return_token_type_ids=False,
+          padding="max_length",
+          truncation=True,
+          return_attention_mask=True,
+          return_tensors='pt',
         )
         
         return dict(
-            comment_text=comment_text,
-            input_ids=encoding["input_ids"].flatten(),
-            attention_mask=encoding["attention_mask"].flatten(),
-            labels=torch.FloatTensor(labels)
-            )
+          comment_text=comment_text,
+          input_ids=encoding["input_ids"].flatten(),
+          attention_mask=encoding["attention_mask"].flatten(),
+          labels=torch.FloatTensor(labels)
+          )
         
 train_dataset = ToxicCommentsDataset(
   train_df,
@@ -150,36 +150,40 @@ class ToxicCommentDataModule(pl.LightningDataModule):
         self.test_df = test_df
         self.tokenizer = tokenizer
         self.max_token_len = max_token_len
+        
     def setup(self, stage=None):
         self.train_dataset = ToxicCommentsDataset(
-        self.train_df,
-        self.tokenizer,
-        self.max_token_len
+          self.train_df,
+          self.tokenizer,
+          self.max_token_len
         )
         self.test_dataset = ToxicCommentsDataset(
-        self.test_df,
-        self.tokenizer,
-        self.max_token_len
+          self.test_df,
+          self.tokenizer,
+          self.max_token_len
         )
+        
     def train_dataloader(self):
         return DataLoader(
-        self.train_dataset,
-        batch_size=self.batch_size,
-        shuffle=True,
-        num_workers=2
+          self.train_dataset,
+          batch_size=self.batch_size,
+          shuffle=True,
+          num_workers=2 
         )
     def val_dataloader(self):
         return DataLoader(
-        self.test_dataset,
-        batch_size=self.batch_size,
-        num_workers=2
+          self.test_dataset,
+          batch_size=self.batch_size,
+          num_workers=2
         )
+        
     def test_dataloader(self):
         return DataLoader(
-        self.test_dataset,
-        batch_size=self.batch_size,
-        num_workers=2
+          self.test_dataset,
+          batch_size=self.batch_size,
+          num_workers=2
         )
+        
 N_EPOCHS = 10
 BATCH_SIZE = 12
 data_module = ToxicCommentDataModule(
@@ -198,6 +202,7 @@ class ToxicCommentTagger(pl.LightningModule):
         self.n_training_steps = n_training_steps
         self.n_warmup_steps = n_warmup_steps
         self.criterion = nn.BCELoss()
+        
     def forward(self, input_ids, attention_mask, labels=None):
         output = self.bert(input_ids, attention_mask=attention_mask)
         output = self.classifier(output.pooler_output)
@@ -233,6 +238,7 @@ class ToxicCommentTagger(pl.LightningModule):
         return loss
     
     def training_epoch_end(self, outputs):
+          
         labels = []
         predictions = []
         
@@ -253,16 +259,16 @@ class ToxicCommentTagger(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = AdamW(self.parameters(), lr=2e-5)
         scheduler = get_linear_schedule_with_warmup(
-        optimizer,
-        num_warmup_steps=self.n_warmup_steps,
-        num_training_steps=self.n_training_steps
-        )
+          optimizer,
+          num_warmup_steps=self.n_warmup_steps,
+          num_training_steps=self.n_training_steps
+          )
         return dict(
         optimizer=optimizer,
         lr_scheduler=dict(
             scheduler=scheduler,
             interval='step'
-        )
+          )
         )
         
 dummy_model = nn.Linear(2, 1)
@@ -292,11 +298,13 @@ steps_per_epoch=len(train_df) // BATCH_SIZE
 total_training_steps = steps_per_epoch * N_EPOCHS
 warmup_steps = total_training_steps // 5
 warmup_steps, total_training_steps
+
 model = ToxicCommentTagger(
   n_classes=len(LABEL_COLUMNS),
   n_warmup_steps=warmup_steps,
   n_training_steps=total_training_steps
 )
+
 checkpoint_callback = ModelCheckpoint(
   dirpath="checkpoints",
   filename="best-checkpoint",
@@ -316,8 +324,11 @@ trainer = pl.Trainer(
   checkpoint_callback=checkpoint_callback,
   callbacks=[early_stopping_callback],
   max_epochs=N_EPOCHS,
-  gpus=1,
   progress_bar_refresh_rate=30
 )
 
 trainer.fit(model, data_module)
+
+
+
+
