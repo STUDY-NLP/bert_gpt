@@ -493,9 +493,6 @@ plt.show();
 
 """## Training"""
 
-!rm -rf lightning_logs/
-!rm -rf checkpoints/
-
 # Commented out IPython magic to ensure Python compatibility.
 # %load_ext tensorboard
 # %tensorboard --logdir ./lightning_logs
