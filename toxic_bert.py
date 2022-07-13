@@ -28,7 +28,7 @@ pl.seed_everything(RANDOM_SEED)
 # from googledrive
 # !gdown --id 1VuQ-U7TtggShMeuRSA_hzC8qGDl2LRkr
 
-df = pd.read_csv("/scratch/x2223a07/data/toxic_comments.csv")
+df = pd.read_csv("./data/toxic_comments.csv")
 df.head()
 
 train_df, val_df = train_test_split(df, test_size=0.05)
