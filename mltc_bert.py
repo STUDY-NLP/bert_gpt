@@ -12,7 +12,10 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import BertTokenizerFast as BertTokenizer, BertModel, AdamW, get_linear_schedule_with_warmup
 
 import pytorch_lightning as pl
-from pytorch_lightning.metrics.functional import accuracy, f1, auroc
+# if ModuleNotFoundError: No module named 'pytorch_lightning.metrics' then
+# change to torchmetrics.functional
+# not f1 -> f1_score
+from torchmetrics.functional import accuracy, f1_score, auroc
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 
@@ -511,9 +514,12 @@ checkpoint_callback = ModelCheckpoint(
   mode="min"
 )
 
-"""Log the progress in TensorBoard:"""
+"""Log the progress in wandb"""
 
-logger = TensorBoardLogger("lightning_logs", name="toxic-comments")
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning import Trainer
+
+logger = WandbLogger(project="mltc-bert")
 
 """And early stopping triggers when the loss hasn't improved for the last 2 epochs (you might want to remove/reconsider this when training on real-world projects):"""
 
