@@ -351,11 +351,6 @@ class ToxicCommentTagger(pl.LightningModule):
     labels = torch.stack(labels).int()
     predictions = torch.stack(predictions)
 
-    for i, name in enumerate(LABEL_COLUMNS):
-      class_roc_auc = auroc(predictions[:, i], labels[:, i])
-      self.logger.experiment.add_scalar(f"{name}_roc_auc/Train", class_roc_auc, self.current_epoch)
-
-
   def configure_optimizers(self):
 
     optimizer = AdamW(self.parameters(), lr=2e-5)
