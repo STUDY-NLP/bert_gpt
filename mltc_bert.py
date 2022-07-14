@@ -537,7 +537,7 @@ trainer.fit(model, data_module)
 
 """The model improved for (only) 2 epochs. We'll have to evaluate it to see whether it is any good. Let's double-check the validation loss:"""
 
-trainer.test()
+# trainer.test()
 
 """## Predictions
 
